@@ -12,6 +12,7 @@ import json
 import datetime
 import uuid
 import enum
+import secrets
 
 import pyaes
 
@@ -725,6 +726,9 @@ def build(romfile, options, force_recompile=False):
     # generate blob and defines
     blob_address = 0x258000
     blob_data, blob_defines = env.blob.generate(0x8000, blob_address, rnd=(None if env.options.debug else env.rnd))
+
+    # static rng block
+    env.add_binary(BusAddress(0x14EE00), secrets.SystemRandom([int(env.options.seed)]).randbytes(0x100))
 
     env.add_binary(BusAddress(blob_address), blob_data)
     env.add_script('msfpatch {\n'
